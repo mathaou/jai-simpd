@@ -1,6 +1,6 @@
 #scope_file
 
-__simd_add_float :: (a: *$T, b: *T) -> int #modify { return T == float32 || T == float64; } {
+__simd_subtract_float :: (a: *$T, b: *T) -> int #modify { return T == float32 || T == float64; } {
     #if CPU == .ARM64 {
         assert(false); //not implemented yet
     } else {
@@ -10,7 +10,7 @@ __simd_add_float :: (a: *$T, b: *T) -> int #modify { return T == float32 || T ==
                 #asm SSE {
                     movups.x xmm0: vec, [a];
                     movups.x xmm1: vec, [b];
-                    addps.x  xmm1, xmm0;
+                    subps.x  xmm1, xmm0;
                     movups.x [b], xmm1;
                 }
 
@@ -19,7 +19,7 @@ __simd_add_float :: (a: *$T, b: *T) -> int #modify { return T == float32 || T ==
                 #asm SSE {
                     movups.x xmm0: vec, [a];
                     movups.x xmm1: vec, [b];
-                    addpd.x  xmm1, xmm0;
+                    subpd.x  xmm1, xmm0;
                     movupd.x [b], xmm1;
                 }
 
@@ -32,7 +32,7 @@ __simd_add_float :: (a: *$T, b: *T) -> int #modify { return T == float32 || T ==
                 #asm AVX, AVX2 {
                     movups.y ymm0: vec, [a];
                     movups.y ymm1: vec, [b];
-                    addps.y  ymm1, ymm0, ymm1;
+                    subps.y  ymm1, ymm0, ymm1;
                     movups.y [b], ymm1;
                 }
 
@@ -41,7 +41,7 @@ __simd_add_float :: (a: *$T, b: *T) -> int #modify { return T == float32 || T ==
                 #asm AVX, AVX2 {
                     movups.y ymm0: vec, [a];
                     movups.y ymm1: vec, [b];
-                    addpd.y  ymm1, ymm0, ymm1;
+                    subpd.y  ymm1, ymm0, ymm1;
                     movupd.y [b], ymm1;
                 }
 
@@ -55,31 +55,24 @@ __simd_add_float :: (a: *$T, b: *T) -> int #modify { return T == float32 || T ==
     return 0;
 }
 
-__simd_add_8 :: (a: *$T, b: *T) -> int #modify { return T == u8 || T == s8; } {
+__simd_subtract_8 :: (a: *$T, b: *T) -> int #modify { return T == u8 || T == s8; } {
     #if CPU == .ARM64 {
         assert(false); //not implemented yet
     } else {
-        if context.simd_type == {
+        if context.simd_type == { // for bytes I guess AVX2 doesn't support
+        case .avx; // @note the AVX variant of this function isn't supported yet
+        #through;
+        case .avx2; // @note assuming that any CPU with AVX/AVX2 also has SSE
+        #through;
         case .sse;
             #asm SSE {
                 movdqu.x  xmm0: vec, [a];
                 movdqu.x  xmm1: vec, [b];
-                paddb.x   xmm1, xmm0;
+                psubb.x   xmm1, xmm0;
                 movdqu.x  [b], xmm1;
             }
 
             return 16;
-        case .avx;
-        #through;
-        case .avx2; 
-            #asm AVX, AVX2 {
-                movdqu.y  ymm0: vec, [a];
-                movdqu.y  ymm1: vec, [b];
-                paddb.y   ymm1, ymm0, ymm1;
-                movdqu.y  [b], ymm1;
-            }
-
-            return 32;
         case;
             assert(false);
         }
@@ -88,7 +81,7 @@ __simd_add_8 :: (a: *$T, b: *T) -> int #modify { return T == u8 || T == s8; } {
     return 0;
 }
 
-__simd_add_16 :: (a: *$T, b: *T) -> int #modify { return T == s16 || T == u16; } {
+__simd_subtract_16 :: (a: *$T, b: *T) -> int #modify { return T == s16 || T == u16; } {
     if CPU == .ARM64 {
         assert(false);
     } else {
@@ -97,7 +90,7 @@ __simd_add_16 :: (a: *$T, b: *T) -> int #modify { return T == s16 || T == u16; }
             #asm SSE {
                 movdqu.x  xmm0: vec, [a];
                 movdqu.x  xmm1: vec, [b];
-                paddw.x   xmm1, xmm0;
+                psubw.x   xmm1, xmm0;
                 movdqu.x  [b], xmm1;
             }
 
@@ -108,7 +101,7 @@ __simd_add_16 :: (a: *$T, b: *T) -> int #modify { return T == s16 || T == u16; }
             #asm AVX, AVX2 { // signed and unsigned have same logic
                 movdqu.y  ymm0: vec, [a];
                 movdqu.y  ymm1: vec, [b];
-                paddw.y   ymm1, ymm0, ymm1;
+                psubw.y   ymm1, ymm0, ymm1;
                 movupd.y  [b], ymm1;
             }
 
@@ -121,7 +114,7 @@ __simd_add_16 :: (a: *$T, b: *T) -> int #modify { return T == s16 || T == u16; }
     return 0;
 }
 
-__simd_add_32 :: (a: *$T, b: *T) -> int #modify { return T == s32 || T == u32; } {
+__simd_subtract_32 :: (a: *$T, b: *T) -> int #modify { return T == s32 || T == u32; } {
     if CPU == .ARM64 {
         assert(false);
     } else {
@@ -130,7 +123,7 @@ __simd_add_32 :: (a: *$T, b: *T) -> int #modify { return T == s32 || T == u32; }
             #asm SSE {
                 movdqu.x  xmm0: vec, [a];
                 movdqu.x  xmm1: vec, [b];
-                paddd.x   xmm1, xmm0;
+                psubd.x   xmm1, xmm0;
                 movdqu.x  [b], xmm1;
             }
 
@@ -141,7 +134,7 @@ __simd_add_32 :: (a: *$T, b: *T) -> int #modify { return T == s32 || T == u32; }
             #asm AVX, AVX2 { // signed and unsigned have same logic
                 movdqu.y  ymm0: vec, [a];
                 movdqu.y  ymm1: vec, [b];
-                paddd.y   ymm1, ymm0, ymm1;
+                psubd.y   ymm1, ymm0, ymm1;
                 movupd.y  [b], ymm1;
             }
 
@@ -154,7 +147,7 @@ __simd_add_32 :: (a: *$T, b: *T) -> int #modify { return T == s32 || T == u32; }
     return 0;
 }
 
-__simd_add_64 :: (a: *$T, b: *T) -> int #modify { return T == s64 || T == u64; } {
+__simd_subtract_64 :: (a: *$T, b: *T) -> int #modify { return T == s64 || T == u64; } {
     if CPU == .ARM64 {
         assert(false);
     } else {
@@ -163,7 +156,7 @@ __simd_add_64 :: (a: *$T, b: *T) -> int #modify { return T == s64 || T == u64; }
             #asm SSE {
                 movdqu.x  xmm0: vec, [a];
                 movdqu.x  xmm1: vec, [b];
-                paddq.x   xmm1, xmm0;
+                psubq.x   xmm1, xmm0;
                 movdqu.x  [b], xmm1;
             }
 
@@ -174,7 +167,7 @@ __simd_add_64 :: (a: *$T, b: *T) -> int #modify { return T == s64 || T == u64; }
             #asm AVX, AVX2 { // signed and unsigned have same logic
                 movdqu.y  ymm0: vec, [a];
                 movdqu.y  ymm1: vec, [b];
-                paddq.y   ymm1, ymm0, ymm1;
+                psubq.y   ymm1, ymm0, ymm1;
                 movupd.y  [b], ymm1;
             }
 
@@ -189,14 +182,14 @@ __simd_add_64 :: (a: *$T, b: *T) -> int #modify { return T == s64 || T == u64; }
 
 #scope_export
 
-simd_add :: (src: []$T, dst: []T) #modify { return T==u8 || T==s8 || T==u16 || T==s16 || T==u32 || T==s32 || T==u64 || T==s64 || T==float32 || T==float64; } {
+simd_subtract :: (src: []$T, dst: []T) #modify { return T==u8 || T==s8 || T==u16 || T==s16 || T==u32 || T==s32 || T==u64 || T==s64 || T==float32 || T==float64; } {
     assert(dst.count >= src.count);
 
     i := 0;
 
     if context.simd_type == .cpu {
         loop_unroll(src.count, #code {
-            dst[i] += src[i];
+            dst[i] -= src[i];
             i += 1;
         });
     } else {
@@ -208,16 +201,16 @@ simd_add :: (src: []$T, dst: []T) #modify { return T==u8 || T==s8 || T==u16 || T
         } else {
             stride = 256 / (__data_width * 8);
         }
-
+        
         while i + stride <= src.count {
             a := src.data + i;
             b := dst.data + i;
 
-            #if T == float32 || T == float64 i += __simd_add_float(a, b);
-            else #if T == u8 || T == s8 i += __simd_add_8(a, b);
-            else #if T == s16 || T == u16 i += __simd_add_16(a, b);
-            else #if T == s32 || T == u32 i += __simd_add_32(a, b);
-            else #if T == s64 || T == u64 i += __simd_add_64(a, b);
+            #if T == float32 || T == float64 i += __simd_subtract_float(a, b);
+            else #if T == u8 || T == s8 i += __simd_subtract_8(a, b);
+            else #if T == s16 || T == u16 i += __simd_subtract_16(a, b);
+            else #if T == s32 || T == u32 i += __simd_subtract_32(a, b);
+            else #if T == s64 || T == u64 i += __simd_subtract_64(a, b);
             else {
                 assert(false); // unimplemented
             }
@@ -233,7 +226,7 @@ simd_add :: (src: []$T, dst: []T) #modify { return T==u8 || T==s8 || T==u16 || T
 
         // catch spillover
         loop_unroll(src.count - i, #code {
-            dst[i] += src[i];
+            dst[i] -= src[i];
             i += 1;
         });
     }
