@@ -122,7 +122,7 @@ __simd_multiply_32 :: (a: *$T, b: *T) -> int #modify { return T == s32 || T == u
 }
 
 // break this function out just for the note so metaprogram can catch if we want
-unsupported_multiply_loop_unroll :: () #expand { 
+unsupported_multiply_loop_unroll :: () #expand {
     loop_unroll(`src.count, #code {
         `dst[`i] *= `src[`i];
         `i += 1;
@@ -153,7 +153,7 @@ simd_multiply :: (src: []$T, dst: []T) #modify { return T==u8 || T==s8 || T==u16
             } else {
                 stride = 256 / (__data_width * 8);
             }
-            
+
             while i + stride <= src.count {
                 a := src.data + i;
                 b := dst.data + i;

@@ -71,7 +71,7 @@ __simd_add_8 :: (a: *$T, b: *T) -> int #modify { return T == u8 || T == s8; } {
             return 16;
         case .avx;
         #through;
-        case .avx2; 
+        case .avx2;
             #asm AVX, AVX2 {
                 movdqu.y  ymm0: vec, [a];
                 movdqu.y  ymm1: vec, [b];
