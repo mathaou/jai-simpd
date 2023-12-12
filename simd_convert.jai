@@ -97,7 +97,7 @@ simd_convert_to :: (src: []$T1, $target: Type, result: []target, allocator := te
         // end := to_nanoseconds(current_time_monotonic()) - start;
 
         if valid_simd {
-            print("% => % success!\n", T1, target);
+            // print("% => % success!\n", T1, target);
         //     comp_start := to_nanoseconds(current_time_monotonic());
         //     t := NewArray(src.count, target, allocator=temp, alignment=16);
         //     c := 0;
@@ -146,9 +146,9 @@ simd_convert_to :: (src: []$T1, $target: Type, result: []target, allocator := te
             }
 
             if diff > 1 || diff < -1 { // within a little epsilon is fine idgaf
-                print("[% => %] % != % @ %\n", T1, target, sanity[it_index], result[it_index], it_index);
+                // print("[% => %] % != % @ %\n", T1, target, sanity[it_index], result[it_index], it_index);
                 for sanity {
-                    print("[%]\t%\t\t%\n", it_index, it, result[it_index]);
+                    // print("[%]\t%\t\t%\n", it_index, it, result[it_index]);
                 }
                 assert(false);
             }

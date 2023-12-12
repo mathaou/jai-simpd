@@ -111,5 +111,5 @@ simd_divide :: (src: []$T, dst: []T) #modify { return T==u8 || T==s8 || T==u16 |
         });
     }
 
-    print("[%] %\n", T, dst);
+    // print("[%] %\n", T, dst);
 }

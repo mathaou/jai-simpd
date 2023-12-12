@@ -201,7 +201,7 @@ simd_subtract :: (src: []$T, dst: []T) #modify { return T==u8 || T==s8 || T==u16
         } else {
             stride = 256 / (__data_width * 8);
         }
-        
+
         while i + stride <= src.count {
             a := src.data + i;
             b := dst.data + i;
@@ -231,5 +231,5 @@ simd_subtract :: (src: []$T, dst: []T) #modify { return T==u8 || T==s8 || T==u16
         });
     }
 
-    print("[%] %\n", T, dst);
+    // print("[%] %\n", T, dst);
 }
