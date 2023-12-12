@@ -75,19 +75,13 @@ __float64_to_32 :: (a: *float64, b: *s32) -> int #expand {
         #asm AVX, AVX2 {
             movups.y      ymm0: vec, [a];
             movups.y      ymm1: vec, [a + 32];
-            movups.y      ymm2: vec, [a + 64];
-            movups.y      ymm3: vec, [a + 96];
             cvtpd2dq.y    ymm0, ymm0;
             cvtpd2dq.y    ymm1, ymm1;
-            cvtpd2dq.y    ymm2, ymm2;
-            cvtpd2dq.y    ymm3, ymm3;
             movupd.y      [b], ymm0;
             movupd.y      [b + 16], ymm1;
-            movupd.y      [b + 32], ymm1;
-            movupd.y      [b + 48], ymm1;
         }
 
-        return 4;
+        return 8;
     }
 
     return 0;

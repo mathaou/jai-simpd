@@ -36,16 +36,10 @@ __float32_to_float64 :: (a: *float32, b: *float64) -> int #expand {
         #asm SSE {
             movups.x      xmm0: vec, [a];
             movups.x      xmm1: vec, [a + 8];
-            movups.x      xmm2: vec, [a + 16];
-            movups.x      xmm3: vec, [a + 24];
             cvtps2pd.x    xmm0, xmm0;
             cvtps2pd.x    xmm1, xmm1;
-            cvtps2pd.x    xmm2, xmm2;
-            cvtps2pd.x    xmm3, xmm3;
             movupd.x      [b], xmm0;
             movupd.x      [b + 16], xmm1;
-            movupd.x      [b + 32], xmm2;
-            movupd.x      [b + 48], xmm3;
         }
 
         return 4;
