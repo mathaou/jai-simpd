@@ -1,4 +1,4 @@
-#scope_export
+#scope_module
 
 // god bless how_to
 loop_unroll :: (n: int, code: Code) #expand {

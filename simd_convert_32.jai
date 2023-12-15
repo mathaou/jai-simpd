@@ -1,6 +1,7 @@
+#scope_module
 
 __16_to_32 :: (a: *$T1, b: *$T2) -> int #expand {
-    if context.simd_type == {
+    if `simd_type == {
     case .avx;
     #through;
     case .avx2;
@@ -57,7 +58,7 @@ __16_to_32 :: (a: *$T1, b: *$T2) -> int #expand {
 }
 
 __float64_to_32 :: (a: *float64, b: *s32) -> int #expand {
-    if context.simd_type == {
+    if `simd_type == {
     case .sse;
         #asm SSE {
             movups.x      xmm0: vec, [a];
@@ -88,7 +89,7 @@ __float64_to_32 :: (a: *float64, b: *s32) -> int #expand {
 }
 
 __u8_to_32 :: (a: *u8, b: *u32) -> int #expand {
-    if context.simd_type == {
+    if `simd_type == {
     case .sse;
         #asm SSE {
             movups.x      xmm0: vec, [a];
@@ -131,7 +132,7 @@ __u8_to_32 :: (a: *u8, b: *u32) -> int #expand {
 }
 
 __s8_to_32 :: (a: *s8, b: *s32) -> int #expand {
-    if context.simd_type == {
+    if `simd_type == {
     case .sse;
         #asm SSE {
             movups.x      xmm0: vec, [a];
@@ -174,7 +175,7 @@ __s8_to_32 :: (a: *s8, b: *s32) -> int #expand {
 }
 
 __float32_to_32 :: (a: *float32, b: *s32) -> int #expand {
-    if context.simd_type == {
+    if `simd_type == {
     case .sse;
         #asm SSE {
             movups.x      xmm0: vec, [a];

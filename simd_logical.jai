@@ -2,12 +2,12 @@
 
 #scope_export
 
-simd_clear :: (dst: []$T) {
+simd_clear :: inline (dst: []$T, simd_type := SIMD_Type.cpu) {
     assert(dst.count > 0);
 
     i := 0;
 
-    if context.simd_type == .cpu {
+    if simd_type == .cpu {
         loop_unroll(dst.count, #code {
             dst[i] = 0;
             i += 1;
@@ -16,7 +16,7 @@ simd_clear :: (dst: []$T) {
         stride: int;
         __data_width := size_of(T);
 
-        if context.simd_type == .sse {
+        if simd_type == .sse {
             stride = 128 / (__data_width * 8);
         } else {
             stride = 256 / (__data_width * 8);
@@ -25,7 +25,7 @@ simd_clear :: (dst: []$T) {
         while i + stride <= dst.count {
             b := dst.data + i;
 
-            if context.simd_type == {
+            if simd_type == {
             case .sse;
                 #asm SSE {
                     movdqu.x  xmm0: vec, [b];
@@ -63,13 +63,12 @@ simd_clear :: (dst: []$T) {
     // print("[%] %\n", T, dst);
 }
 
-
-simd_and :: (src: []$T, dst: []T) {
+simd_and :: inline (src: []$T, dst: []T, simd_type := SIMD_Type.cpu) {
     assert(dst.count >= src.count);
 
     i := 0;
 
-    if context.simd_type == .cpu {
+    if simd_type == .cpu {
         loop_unroll(src.count, #code {
             dst[i] &= src[i];
             i += 1;
@@ -78,7 +77,7 @@ simd_and :: (src: []$T, dst: []T) {
         stride: int;
         __data_width := size_of(T);
 
-        if context.simd_type == .sse {
+        if simd_type == .sse {
             stride = 128 / (__data_width * 8);
         } else {
             stride = 256 / (__data_width * 8);
@@ -88,7 +87,7 @@ simd_and :: (src: []$T, dst: []T) {
             a := src.data + i;
             b := dst.data + i;
 
-            if context.simd_type == {
+            if `simd_type == {
             case .sse;
                 #asm SSE {
                     movdqu.x  xmm0: vec, [a];

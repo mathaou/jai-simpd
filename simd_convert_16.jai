@@ -1,8 +1,9 @@
+#scope_module
 
 // u8, s8, u16, s16, float32, float64 should all be able to convert to 32 bit. float always goes to signed 32 I believe
 __convert_to_16 :: (a: *$T1, b: *$T2) -> int #modify { return T2 == s16 || T2 == u16; } #expand {
     #if T1 == u8 {
-        if context.simd_type == {
+        if `simd_type == {
         case .sse;
             #asm SSE {
                 movups.x      xmm0: vec, [a];
@@ -28,7 +29,7 @@ __convert_to_16 :: (a: *$T1, b: *$T2) -> int #modify { return T2 == s16 || T2 ==
 
         return 0;
     } else #if T1 == s8 {
-        if context.simd_type == {
+        if `simd_type == {
         case .sse;
             #asm SSE {
                 movups.x      xmm0: vec, [a];

@@ -9,7 +9,7 @@ unsupported_convert_loop_unroll :: () #expand {
 
 #scope_export
 
-simd_convert_to :: (src: []$T1, $target: Type, result: []target, allocator := temp) -> bool #modify { return (T1 == float32 || T1 == s32 || T1 == s16 || T1 == u32 || T1 == u16 || T1 == float64 || T1 == u8 || T1 == s8 || T1 == u64 || T1 == s64); } {
+simd_convert_to :: inline (src: []$T1, $target: Type, result: []target, simd_type := SIMD_Type.cpu) -> bool #modify { return (T1 == float32 || T1 == s32 || T1 == s16 || T1 == u32 || T1 == u16 || T1 == float64 || T1 == u8 || T1 == s8 || T1 == u64 || T1 == s64); } {
     valid_simd := false;
 
     #if T1 == target {
@@ -18,7 +18,7 @@ simd_convert_to :: (src: []$T1, $target: Type, result: []target, allocator := te
 
     i := 0;
 
-    if context.simd_type == .cpu {
+    if simd_type == .cpu {
         loop_unroll(src.count, #code {
             result[i] = cast(target) src[i];
             i += 1;
@@ -27,7 +27,7 @@ simd_convert_to :: (src: []$T1, $target: Type, result: []target, allocator := te
         stride: int;
         __data_width := size_of(T1);
 
-        if context.simd_type == .sse {
+        if simd_type == .sse {
             stride = 128 / (__data_width * 8);
         } else {
             stride = 256 / (__data_width * 8);
@@ -127,7 +127,7 @@ simd_convert_to :: (src: []$T1, $target: Type, result: []target, allocator := te
     // print("[%] %\n", T1, src);
     // print("[%] %\n", target, result);
 
-    #if 1 {
+    #if 0 {
         sanity := NewArray(src.count, target, allocator=temp, alignment=16);
 
         for src {
@@ -146,9 +146,9 @@ simd_convert_to :: (src: []$T1, $target: Type, result: []target, allocator := te
             }
 
             if diff > 1 || diff < -1 { // within a little epsilon is fine idgaf
-                // print("[% => %] % != % @ %\n", T1, target, sanity[it_index], result[it_index], it_index);
+                print("[% => %] % != % @ %\n", T1, target, sanity[it_index], result[it_index], it_index);
                 for sanity {
-                    // print("[%]\t%\t\t%\n", it_index, it, result[it_index]);
+                    print("[%]\t%\t\t%\n", it_index, it, result[it_index]);
                 }
                 assert(false);
             }
@@ -156,12 +156,4 @@ simd_convert_to :: (src: []$T1, $target: Type, result: []target, allocator := te
     }
 
     return true;
-}
-// we only give an f about common formats for audio
-simd_convert_to :: (src: []$T1, $target: Type, allocator := temp) -> dst: []target #must #modify { return (T1 == float32 || T1 == s32 || T1 == s16 || T1 == u32 || T1 == u16 || T1 == float64 || T1 == u8 || T1 == s8 || T1 == u64 || T1 == s64); } {
-    result := NewArray(src.count, target, allocator=allocator, alignment=16);
-
-    simd_convert_to(src, target, result, allocator=allocator);
-
-    return result;
 }

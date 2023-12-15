@@ -1,10 +1,10 @@
 #scope_file
 
-__simd_divide_float :: (a: *$T, b: *T) -> int #modify { return T == float32 || T == float64; } {
+__simd_divide_float :: (a: *$T, b: *T) -> int #modify { return T == float32 || T == float64; } #expand {
     #if CPU == .ARM64 {
         assert(false); //not implemented yet
     } else {
-        if context.simd_type == {
+        if `simd_type == {
         case .sse;
             #if T == float32 {
                 #asm SSE {
@@ -65,12 +65,12 @@ unsupported_divide_loop_unroll :: () #expand {
 
 #scope_export
 
-simd_divide :: (src: []$T, dst: []T) #modify { return T==u8 || T==s8 || T==u16 || T==s16 || T==u32 || T==s32 || T==u64 || T==s64 || T==float32 || T==float64; } {
+simd_divide :: inline (src: []$T, dst: []T, simd_type := SIMD_Type.cpu) #modify { return T==u8 || T==s8 || T==u16 || T==s16 || T==u32 || T==s32 || T==u64 || T==s64 || T==float32 || T==float64; } {
     assert(dst.count >= src.count);
 
     i := 0;
 
-    if context.simd_type == .cpu {
+    if simd_type == .cpu {
         loop_unroll(src.count, #code {
             dst[i] /= src[i];
             i += 1;
@@ -82,7 +82,7 @@ simd_divide :: (src: []$T, dst: []T) #modify { return T==u8 || T==s8 || T==u16 |
             stride: int;
             __data_width := size_of(T);
 
-            if context.simd_type == .sse {
+            if simd_type == .sse {
                 stride = 128 / (__data_width * 8);
             } else {
                 stride = 256 / (__data_width * 8);

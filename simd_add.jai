@@ -1,26 +1,26 @@
 #scope_file
 
-__simd_add_float :: (a: *$T, b: *T) -> int #modify { return T == float32 || T == float64; } {
+__simd_add_float :: (a: *$T, b: *T) -> int #modify { return T == float32 || T == float64; } #expand {
     #if CPU == .ARM64 {
         assert(false); //not implemented yet
     } else {
-        if context.simd_type == {
+        if `simd_type == {
         case .sse;
             #if T == float32 {
                 #asm SSE {
-                    movups.x xmm0: vec, [a];
-                    movups.x xmm1: vec, [b];
+                    movaps.x xmm0: vec, [a];
+                    movaps.x xmm1: vec, [b];
                     addps.x  xmm1, xmm0;
-                    movups.x [b], xmm1;
+                    movaps.x [b], xmm1;
                 }
 
                 return 4;
             } else {
                 #asm SSE {
-                    movups.x xmm0: vec, [a];
-                    movups.x xmm1: vec, [b];
+                    movapd.x xmm0: vec, [a];
+                    movapd.x xmm1: vec, [b];
                     addpd.x  xmm1, xmm0;
-                    movupd.x [b], xmm1;
+                    movapd.x [b], xmm1;
                 }
 
                 return 2;
@@ -30,19 +30,17 @@ __simd_add_float :: (a: *$T, b: *T) -> int #modify { return T == float32 || T ==
         case .avx2;
             #if T == float32 {
                 #asm AVX, AVX2 {
-                    movups.y ymm0: vec, [a];
-                    movups.y ymm1: vec, [b];
-                    addps.y  ymm1, ymm0, ymm1;
-                    movups.y [b], ymm1;
+                    movaps.y ymm0: vec, [a];
+                    movaps.y ymm1: vec, [b];
+                    addps.y  ymm1, ymm0, [b];
                 }
 
                 return 8;
             } else {
                 #asm AVX, AVX2 {
-                    movups.y ymm0: vec, [a];
-                    movups.y ymm1: vec, [b];
-                    addpd.y  ymm1, ymm0, ymm1;
-                    movupd.y [b], ymm1;
+                    movapd.y ymm0: vec, [a];
+                    movapd.y ymm1: vec, [b];
+                    addpd.y  ymm1, ymm0, [b];
                 }
 
                 return 4;
@@ -55,11 +53,11 @@ __simd_add_float :: (a: *$T, b: *T) -> int #modify { return T == float32 || T ==
     return 0;
 }
 
-__simd_add_8 :: (a: *$T, b: *T) -> int #modify { return T == u8 || T == s8; } {
+__simd_add_8 :: (a: *$T, b: *T) -> int #modify { return T == u8 || T == s8; } #expand {
     #if CPU == .ARM64 {
         assert(false); //not implemented yet
     } else {
-        if context.simd_type == {
+        if `simd_type == {
         case .sse;
             #asm SSE {
                 movdqu.x  xmm0: vec, [a];
@@ -88,11 +86,11 @@ __simd_add_8 :: (a: *$T, b: *T) -> int #modify { return T == u8 || T == s8; } {
     return 0;
 }
 
-__simd_add_16 :: (a: *$T, b: *T) -> int #modify { return T == s16 || T == u16; } {
+__simd_add_16 :: (a: *$T, b: *T) -> int #modify { return T == s16 || T == u16; } #expand {
     if CPU == .ARM64 {
         assert(false);
     } else {
-        if context.simd_type == { // for bytes I guess AVX2 doesn't support
+        if `simd_type == { // for bytes I guess AVX2 doesn't support
         case .sse;
             #asm SSE {
                 movdqu.x  xmm0: vec, [a];
@@ -121,11 +119,11 @@ __simd_add_16 :: (a: *$T, b: *T) -> int #modify { return T == s16 || T == u16; }
     return 0;
 }
 
-__simd_add_32 :: (a: *$T, b: *T) -> int #modify { return T == s32 || T == u32; } {
+__simd_add_32 :: (a: *$T, b: *T) -> int #modify { return T == s32 || T == u32; } #expand {
     if CPU == .ARM64 {
         assert(false);
     } else {
-        if context.simd_type == { // for bytes I guess AVX2 doesn't support
+        if `simd_type == { // for bytes I guess AVX2 doesn't support
         case .sse;
             #asm SSE {
                 movdqu.x  xmm0: vec, [a];
@@ -154,11 +152,11 @@ __simd_add_32 :: (a: *$T, b: *T) -> int #modify { return T == s32 || T == u32; }
     return 0;
 }
 
-__simd_add_64 :: (a: *$T, b: *T) -> int #modify { return T == s64 || T == u64; } {
+__simd_add_64 :: (a: *$T, b: *T) -> int #modify { return T == s64 || T == u64; } #expand {
     if CPU == .ARM64 {
         assert(false);
     } else {
-        if context.simd_type == { // for bytes I guess AVX2 doesn't support
+        if `simd_type == { // for bytes I guess AVX2 doesn't support
         case .sse;
             #asm SSE {
                 movdqu.x  xmm0: vec, [a];
@@ -189,12 +187,12 @@ __simd_add_64 :: (a: *$T, b: *T) -> int #modify { return T == s64 || T == u64; }
 
 #scope_export
 
-simd_add :: (src: []$T, dst: []T) #modify { return T==u8 || T==s8 || T==u16 || T==s16 || T==u32 || T==s32 || T==u64 || T==s64 || T==float32 || T==float64; } {
+simd_add :: inline (src: []$T, dst: []T, simd_type := SIMD_Type.cpu) #modify { return T==u8 || T==s8 || T==u16 || T==s16 || T==u32 || T==s32 || T==u64 || T==s64 || T==float32 || T==float64; } {
     assert(dst.count >= src.count);
 
     i := 0;
 
-    if context.simd_type == .cpu {
+    if simd_type == .cpu {
         loop_unroll(src.count, #code {
             dst[i] += src[i];
             i += 1;
@@ -203,7 +201,7 @@ simd_add :: (src: []$T, dst: []T) #modify { return T==u8 || T==s8 || T==u16 || T
         stride: int;
         __data_width := size_of(T);
 
-        if context.simd_type == .sse {
+        if simd_type == .sse {
             stride = 128 / (__data_width * 8);
         } else {
             stride = 256 / (__data_width * 8);
@@ -238,5 +236,5 @@ simd_add :: (src: []$T, dst: []T) #modify { return T==u8 || T==s8 || T==u16 || T
         });
     }
 
-    print("[%] %\n", T, dst);
+    // print("[%] %\n", T, dst);
 }

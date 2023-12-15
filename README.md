@@ -2,9 +2,21 @@
 
 ## Simple SIMD in Jai
 
-**SIMD may generally improve performance across the board compared to loop unrolling, but different backings may be better or worse than each other depending on the task. Going with newest instructions (AVX2) does not mean it will perform better across the board compared to SSE (earliest this library supports). There are instances where SSE still outperforms AVX2. Do your homework if performance is critical to you. The goal of this library is to provide a reasonable speed increase for common operations overall, not to achieve optimal performance.**
+As of compiler version 0.1.078 and the current state of the codebase, here's the ranking on average time to complete multiple runs of 2048 random numbers and each op. See `tests/benchmark_convert.jai` to run yourself.
 
-If you are performing a common operation on a large array of some data type, `Simpd` can speed that up a bit (maybe a lot)!
+Ran on AMD Ryzen 7 7730U, single thread.
+
+| OP | CPU | AVX2 | AVX | SSE | Best |
+| --- | --- | --- | --- | --- |
+| Convert | 7404ns | 2054ns | 2054ns | 2776ns | AVX2 + AVX |
+| Divide | 32250ns | 244839ns | 198692ns | 19256ns | SSE |
+| Add | 11602ns | 359394ns | 358683ns | 6161ns | SSE |
+| Subtract | 11642ns | 356789ns | 357971ns | 6502ns | SSE |
+| Multiply | 12243ns | 597991ns | 714280ns | 9728ns | SSE |
+
+I know that AVX + LLVM is an area that is currently being worked on by compiler team, so I would expect these numbers to shift over time. In the mean time, unless you're converting, the SSE backing should give you a speed boost.
+
+**SIMD may generally improve performance across the board compared to loop unrolling, but different backings may be better or worse than each other depending on the task and data. Going with newest instructions (AVX2) does not mean it will perform better across the board compared to SSE (earliest this library supports). There are instances where SSE still outperforms AVX2. Do your homework if performance is critical to you. The goal of this library is to provide a reasonable speed increase for common operations overall, not to achieve optimal performance.**
 
 ---
 
@@ -57,7 +69,7 @@ The API of these functions may be made to reject any unsupported types instead o
 | `simd_reciprocal_root` | AVX+AVX2+SSE| |  | |  |  |
 | `simd_root` | AVX+AVX2+SSE| |  | |  |  |
 | `simd_average` | | | AVX+AVX2+SSE | AVX+AVX2+SSE |  |  | -->
-<!-- 
+<!--
 ##### Bit Manipulation
 
 | Instruction | float32 | float64 | i8/u8 | i16/u16 | i32/u32 | i64/u64 |
@@ -66,7 +78,7 @@ The API of these functions may be made to reject any unsupported types instead o
 | `simd_shift_right` | AVX+AVX2+SSE | AVX+AVX2+SSE | | AVX+AVX2+SSE | AVX+AVX2+SSE | AVX+AVX2+SSE |
 | `simd_rotate_left` | AVX+AVX2+SSE | AVX+AVX2+SSE | | AVX+AVX2+SSE | AVX+AVX2+SSE | AVX+AVX2+SSE |
 | `simd_rotate_right`| AVX+AVX2+SSE | AVX+AVX2+SSE | | AVX+AVX2+SSE | AVX+AVX2+SSE | AVX+AVX2+SSE | -->
-<!-- 
+<!--
 ##### Comparisons and Validity
 
 | Instruction | float32 | float64 | i8/u8 | i16/u16 | i32/u32 | i64/u64 | Note |

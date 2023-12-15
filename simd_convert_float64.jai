@@ -1,6 +1,7 @@
+#scope_module
 
 __32_to_float64 :: (a: *s32, b: *float64) -> int #expand {
-    if context.simd_type == {
+    if `simd_type == {
     case .sse;
         #asm SSE {
             movdqu.x      xmm0: vec, [a];
@@ -31,7 +32,7 @@ __32_to_float64 :: (a: *s32, b: *float64) -> int #expand {
 }
 
 __float32_to_float64 :: (a: *float32, b: *float64) -> int #expand {
-    if context.simd_type == {
+    if `simd_type == {
     case .sse;
         #asm SSE {
             movups.x      xmm0: vec, [a];

@@ -1,10 +1,10 @@
 #scope_file
 
-__simd_multiply_float :: (a: *$T, b: *T) -> int #modify { return T == float32 || T == float64; } {
+__simd_multiply_float :: (a: *$T, b: *T) -> int #modify { return T == float32 || T == float64; } #expand {
     #if CPU == .ARM64 {
         assert(false); //not implemented yet
     } else {
-        if context.simd_type == {
+        if `simd_type == {
         case .sse;
             #if T == float32 {
                 #asm SSE {
@@ -55,11 +55,11 @@ __simd_multiply_float :: (a: *$T, b: *T) -> int #modify { return T == float32 ||
     return 0;
 }
 
-__simd_multiply_16 :: (a: *$T, b: *T) -> int #modify { return T == s16 || T == u16; } {
+__simd_multiply_16 :: (a: *$T, b: *T) -> int #modify { return T == s16 || T == u16; } #expand {
     if CPU == .ARM64 {
         assert(false);
     } else {
-        if context.simd_type == { // for bytes I guess AVX2 doesn't support
+        if `simd_type == { // for bytes I guess AVX2 doesn't support
         case .sse;
             #asm SSE {
                 movdqu.x   xmm0: vec, [a];
@@ -88,11 +88,11 @@ __simd_multiply_16 :: (a: *$T, b: *T) -> int #modify { return T == s16 || T == u
     return 0;
 }
 
-__simd_multiply_32 :: (a: *$T, b: *T) -> int #modify { return T == s32 || T == u32; } {
+__simd_multiply_32 :: (a: *$T, b: *T) -> int #modify { return T == s32 || T == u32; } #expand {
     if CPU == .ARM64 {
         assert(false);
     } else {
-        if context.simd_type == { // for bytes I guess AVX2 doesn't support
+        if `simd_type == { // for bytes I guess AVX2 doesn't support
         case .sse;
             #asm SSE {
                 movdqu.x   xmm0: vec, [a];
@@ -131,12 +131,12 @@ unsupported_multiply_loop_unroll :: () #expand {
 
 #scope_export
 
-simd_multiply :: (src: []$T, dst: []T) #modify { return T==u8 || T==s8 || T==u16 || T==s16 || T==u32 || T==s32 || T==u64 || T==s64 || T==float32 || T==float64; } {
+simd_multiply :: inline (src: []$T, dst: []T, simd_type := SIMD_Type.cpu) #modify { return T==u8 || T==s8 || T==u16 || T==s16 || T==u32 || T==s32 || T==u64 || T==s64 || T==float32 || T==float64; } {
     assert(dst.count >= src.count);
 
     i := 0;
 
-    if context.simd_type == .cpu {
+    if simd_type == .cpu {
         loop_unroll(src.count, #code {
             dst[i] *= src[i];
             i += 1;
@@ -148,7 +148,7 @@ simd_multiply :: (src: []$T, dst: []T) #modify { return T==u8 || T==s8 || T==u16
             stride: int;
             __data_width := size_of(T);
 
-            if context.simd_type == .sse {
+            if simd_type == .sse {
                 stride = 128 / (__data_width * 8);
             } else {
                 stride = 256 / (__data_width * 8);

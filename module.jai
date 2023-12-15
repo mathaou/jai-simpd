@@ -13,20 +13,16 @@ SIMD_Type :: enum {
     cpu;
 }
 
-#add_context simd_type: SIMD_Type = .cpu;
+most_recent_simd :: () {
+    cpu_info := get_cpu_info();
 
-#if 1 {
-    #run () {
-        cpu_info := get_cpu_info();
-
-        if check_feature(cpu_info.feature_leaves, .AVX2) {
-            context.simd_type = .avx2;
-        } else if check_feature(cpu_info.feature_leaves, .AVX) {
-            context.simd_type = .avx;
-        } else if check_feature(cpu_info.feature_leaves, .SSE) {
-            context.simd_type = .sse;
-        }
-    }();
+    if check_feature(cpu_info.feature_leaves, .AVX2) {
+        return .avx2;
+    } else if check_feature(cpu_info.feature_leaves, .AVX) {
+        return .avx;
+    } else if check_feature(cpu_info.feature_leaves, .SSE) {
+        return .sse;
+    }
 }
 
 #load "simd_common.jai";
