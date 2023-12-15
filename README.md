@@ -20,27 +20,6 @@ I know that AVX + LLVM is an area that is currently being worked on by compiler 
 
 ---
 
-Upon loading, `Simpd` will choose AVX2, AVX, or SSE (in that order) depending on what your hardware supports.
-
-To overload this, set `context.simd_type` to one of the following:
-
-```
-SIMD_Type :: enum {
-    sse;
-    avx;
-    avx2;
-    neon; // unsupported currently
-    cpu;  // use loop unrolling for everything
-}
-
-...
-
-context.simd_type = .sse; // for example
-```
-
-
----
-
 All two parameter functions use the last parameter as the destination to store the result.
 
 ```
