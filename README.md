@@ -40,10 +40,10 @@ The API of these functions may be made to reject any unsupported types instead o
 
 | Instruction | float32 | float64 | i8/u8 | i16/u16 | i32/u32 | i64/u64 |
 | --- | --- | --- | --- | --- | --- | --- |
-| `simd_add :: (src: []$T, dst: []T)` | AVX+AVX2+SSE| AVX+AVX2+SSE | AVX+AVX2+SSE | AVX+AVX2+SSE | AVX+AVX2+SSE | AVX+AVX2+SSE |
-| `simd_subtract :: (src: []$T, dst: []T)` | AVX+AVX2+SSE| AVX+AVX2+SSE | AVX+AVX2+SSE | AVX+AVX2+SSE | AVX+AVX2+SSE | AVX+AVX2+SSE |
-| `simd_multiply :: (src: []$T, dst: []T)` | AVX+AVX2+SSE| AVX+AVX2+SSE |  | AVX+AVX2+SSE | AVX+AVX2+SSE |  |
-| `simd_divide :: (src: []$T, dst: []T)` | AVX+AVX2+SSE| AVX+AVX2+SSE |  | |  |  |
+| `simd_add :: (src: []$T, dst: []T, simd_type := SIMD_Type.cpu)` | AVX+AVX2+SSE| AVX+AVX2+SSE | AVX+AVX2+SSE | AVX+AVX2+SSE | AVX+AVX2+SSE | AVX+AVX2+SSE |
+| `simd_subtract :: (src: []$T, dst: []T, simd_type := SIMD_Type.cpu)` | AVX+AVX2+SSE| AVX+AVX2+SSE | AVX+AVX2+SSE | AVX+AVX2+SSE | AVX+AVX2+SSE | AVX+AVX2+SSE |
+| `simd_multiply :: (src: []$T, dst: []T, simd_type := SIMD_Type.cpu)` | AVX+AVX2+SSE| AVX+AVX2+SSE |  | AVX+AVX2+SSE | AVX+AVX2+SSE |  |
+| `simd_divide :: (src: []$T, dst: []T, simd_type := SIMD_Type.cpu)` | AVX+AVX2+SSE| AVX+AVX2+SSE |  | |  |  |
 <!-- | `simd_reciprocal` | AVX+AVX2+SSE| |  | |  |  |
 | `simd_reciprocal_root` | AVX+AVX2+SSE| |  | |  |  |
 | `simd_root` | AVX+AVX2+SSE| |  | |  |  |
@@ -75,7 +75,7 @@ The API of these functions may be made to reject any unsupported types instead o
 
 ##### Conversions
 
-```simd_convert_to :: (src: []$T1, target: $T2) -> dst: []$T2```
+```simd_convert_to :: (src: []$T1, target: $T2, simd_type := SIMD_Type.cpu) -> dst: []$T2```
 
 `✔️` for fully supported by all backings and empty for `loop unroll`
 
@@ -96,8 +96,8 @@ The API of these functions may be made to reject any unsupported types instead o
 
 | Instruction | Any |
 | --- | --- |
-| `simd_clear :: (dst: []$T)` | AVX2+AVX+SSE |
-| `simd_and :: (src: []$T, dst: []T)` | AVX2+AVX+SSE |
+| `simd_clear :: (dst: []$T, simd_type := SIMD_Type.cpu)` | AVX2+AVX+SSE |
+| `simd_and :: (src: []$T, dst: []T, simd_type := SIMD_Type.cpu)` | AVX2+AVX+SSE |
 <!-- | `simd_or` | AVX2+AVX+SSE |
 | `simd_xor` | AVX2+AVX+SSE |
 | `simd_nand` | AVX2+AVX+SSE |
