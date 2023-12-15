@@ -7,7 +7,7 @@ As of compiler version 0.1.078 and the current state of the codebase, here's the
 Ran on AMD Ryzen 7 7730U, single thread.
 
 | OP | CPU | AVX2 | AVX | SSE | Best |
-| --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | Convert | 7404ns | 2054ns | 2054ns | 2776ns | AVX2 + AVX |
 | Divide | 32250ns | 244839ns | 198692ns | 19256ns | SSE |
 | Add | 11602ns | 359394ns | 358683ns | 6161ns | SSE |
